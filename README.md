@@ -13,7 +13,23 @@ install_github("ylustat/X.ING")
 
 Note that `X.ING` depends on the 'CCA', "RGCCA", "MASS" package. The package was tested on R/4.0.3. The operating system is macOS Monterey (Version 12.6)
 
-# Development
+## Example
+
+An example of applying X-ING is:
+
+```R
+library(MASS)
+library(CCA)
+library(RGCCA)
+data(example)
+z_list <- lapply(example,function(x) x[[1]])
+# L = 2
+res <- XING(z_list = z_list[1:2])
+# L = 3
+res <- XING(z_list = z_list)
+```
+
+## Development
 
 This package is maintained by Yihao Lu (yihaolu@uchicago.edu).
 
