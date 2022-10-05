@@ -11,7 +11,7 @@ library(devtools)
 install_github("ylustat/X.ING")
 ```
 
-Note that `X.ING` depends on the 'CCA', "RGCCA", "MASS" package.
+Note that `X.ING` depends on the 'CCA', "RGCCA", "MASS" package. The package was tested on R/4.0.3. The operating system is macOS Monterey (Version 12.6)
 
 # Development
 
