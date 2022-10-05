@@ -66,3 +66,6 @@ $L=3$:
 
 This package is maintained by Yihao Lu (yihaolu@uchicago.edu).
 
+## Licenses
+
+The code is released under [GNU General Public License (GPL)](https://opensource.org/licenses/gpl-license).
