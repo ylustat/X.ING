@@ -23,8 +23,6 @@ library(CCA)
 library(RGCCA)
 data(example)
 z_list <- lapply(example,function(x) x[[1]])
-
-
 ```
 
 The expected output includes the posterior mean estimation and posterior probability. The computation time was listed.
