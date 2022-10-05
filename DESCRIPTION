@@ -1,0 +1,16 @@
+Package: X.ING
+Type: Package
+Title: Cross-INtegrative Genomics (X-ING)
+Version: 0.1.0
+Author: Yihao Lu, Meritxell Oliva, Brandon Pierce, Jin Liu and Lin Chen
+Maintainer: Yihao Lu <yihaolu@uchicago.edu>
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: X-ING (Cross-INtegrative Genomics) is proposed for cross-omics and cross-context integrative analysis of summary-level data. 
+    X-ING takes as input the statistic matrices from multiple omics studies, each with multivariate contexts. It models the latent binary association status of each statistic, and captures the omics-shared and context-shared major patterns in a hierarchical Bayesian model. 
+    Via the modeling of latent binary status, X-ING enables the cross-feature integration of effects.
+Encoding: UTF-8
+LazyData: true
+Imports: MASS, 
+    CCA, 
+    RGCCA
