@@ -15,3 +15,5 @@ Imports: MASS (>= 7.3),
     CCA (>= 1.2.1), 
     RGCCA (>= 2.1.2)
 License: GPL-3
+Imports: Rcpp (>= 1.0.8.3)
+LinkingTo: Rcpp, RcppArmadillo,BH, RcppDist
