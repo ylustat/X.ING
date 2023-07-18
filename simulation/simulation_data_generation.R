@@ -44,7 +44,7 @@ structured_beta_gen <- function(M,K,h,R){
 
 
 ar1_cor <- function(n, rho) {
-  exponent <- abs(matrix(1:n - 1, nrow = n, 
+  exponent <- abs(matrix(1:n - 1, nrow = n,
                          ncol = n, byrow = TRUE) - (1:n - 1))
   rho^exponent
 }
@@ -69,41 +69,6 @@ cor_mat_gen <- function(r1,r2,cut,K,diag = F) {
   diag(cor_mat) <- 1
   return(cor_mat)
 }
-
-# cor_mat_gen <- function(r1,r2,cut,K) {
-#   cut <- mapply(function(x,k) c(x,k-x),cut,K,SIMPLIFY = F) %>% unlist()
-#   cor_mat <- matrix(r2,nrow = sum(cut),ncol = sum(cut))
-#   cut <- c(0,cut)
-#   cut <- cumsum(cut)
-#   for (i in 1:(length(cut)-1)) {
-#     cor_mat[(cut[i]+1):cut[i+1],(cut[i]+1):cut[i+1]] <- (1 - r1[i]) * Imat(cut[i+1]-cut[i]) + r1[i] * One_mat(cut[i+1]-cut[i])
-#   }
-#   return(cor_mat)
-# }
-
-# heatmap.2(R,dendrogram='none', Rowv=FALSE, Colv=FALSE,trace='none',key=F)
-# 
-# cor_mat_gen <- function(r1,r2,L,K) {
-#   cut <- mapply(function(x,k) c(x,k-x),L,K,SIMPLIFY = F) %>% unlist()
-#   cor_mat <- matrix(0,nrow = sum(cut),ncol = sum(cut))
-#   cut <- c(0,cut)
-#   cut <- cumsum(cut)
-#   for (i in 1:(length(cut)-1)) {
-#       cor_mat[(cut[i]+1):cut[i+1],(cut[i]+1):cut[i+1]] <- r1[i]
-#   }
-#   
-#   for (i in seq(from = 1, to = length(cut)-3, by = 2)) {
-#     for (j in seq(from = i+2, to = length(cut)-1, by = 2)) {
-#       cor_mat[(cut[i]+1):cut[i+1],(cut[j]+1):cut[j+1]] <- r2
-#       cor_mat[(cut[i+1]+1):cut[i+2],(cut[j+1]+1):cut[j+2]] <- r2
-#     }
-#   }
-#   cor_mat[lower.tri(cor_mat)] <- 0
-#   cor_mat <- cor_mat + t(cor_mat)
-#   diag(cor_mat) <- 1
-#   return(cor_mat)
-# }
-
 
 I_mat <- function(n) {
   diag(1,n)
