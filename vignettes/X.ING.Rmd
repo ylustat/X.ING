@@ -1,0 +1,40 @@
+---
+title: Integrative cross-omics and cross-context analysis elucidates molecular links underlying genetic effects on complex traits
+author: "Yihao Lu, Meritxell Oliva, Brandon L. Pierce, Jin Liu, and Lin S. Chen"
+output:
+  pdf_document: default
+  latex_engine: xelatex
+  word_document: default
+  html_document:
+    df_print: paged
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Introduction
+This vignette provides an introduction to the `X.ING` package. The R package `X.ING` implements the X-ING method for cross-omics and cross-context analysis.
+
+To install the development version of the `X.ING` package, please load the `devtools` package first. Note that `X.ING` requires the `CCA`, `Rcpp`, and `RcppArmadillo` packages. 
+
+To install this package, run the following command in R
+```
+library(devtools)
+install_github("ylustat/X.ING")
+```
+
+Load the package using the following command:
+```{r}
+library("X.ING")
+```
+This vignette depends on R packages `MendelianRandomization`, `ggplot2` and `tidyverse`, you can load these packages using the following command:
+```{r}
+suppressMessages(library("tidyverse"))
+library("ggplot2")
+library("MendelianRandomization")
+```
+
+
+### Fit X.ING for correlated SNPs using simulated data
+In this section, we fit X.ING using simulated data (provided in the package) as an example to illustrate the basic usage of X.ING. `gamma_hat` and `se_g` are the estimated SNP-to-expression effect and its standard error. `LD` is the estimated linkage disequilibrium matrix among IVs. `latent status` is the true underlying effect status, where `1` indicates the presence of non-zero effect and `0` indicates the absence of effect.
+
