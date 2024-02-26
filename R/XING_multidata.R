@@ -1,32 +1,3 @@
-#' @title Cross INtegrative Genomics method (X-ING)
-#'
-#' @description X-ING models and estimates the latent binary association status of each statistic, and captures the omic-shared, context-shared, omic-specific and context-specific major patterns in a hierarchical Bayesian model.
-#'
-#' @details
-#' This function \code{XING}, jointly estimates the posterior means of input statistics, models the latent binary association probabilities based on the posterior means, and outputs the posterior mean and probability of association for each input statistic.
-#'
-#' @param z_list a list of association summary statistics, each with multivariate contexts.
-#' @param Lambda_list a list of tissue-tissue correlation matrix among all tissues due to potential sample overlap.
-#' @param CC number of canonical components to keep in canonical correlation analysis (CCA).
-#' @param PC_list numbers of principal components to keep in principal correlation analysis (PCA).
-#' @param iterT maximum iteration times.
-#' @param method methods to extract shared patterns.
-#' @param tolerance tolerance for iteration of generalized canonical correlation analysis.
-#' @export
-#' @return a list with following elements:
-#' \item{mu}{posterior means of input statistics.}
-#' \item{alpha}{posterior probability of association for each input statistic.}
-#' @examples
-#' library(MASS)
-#' if (!require("CCA")) install.packages("CCA")
-#' if (!require("RGCCA")) install.packages("RGCCA")
-#' library(CCA)
-#' library(RGCCA)
-#' data(example)
-#' z_list <- lapply(example,function(x) x[[1]])
-#' res <- XING(z_list = z_list[1:2])
-#' res <- XING(z_list = z_list)
-
 XING_multidata <- function(z_list, Lambda_list = NULL, CC = 2,
                            PC_list = NULL, iterT = 20,
                            tolerance = 1e-8){
