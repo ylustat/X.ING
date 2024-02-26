@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ### Introduction
 This vignette provides an introduction to the `X.ING` package. The R package `X.ING` implements the X-ING method for cross-omics and cross-context analysis.
 
-To install the development version of the `X.ING` package, please load the `devtools` package first. Note that `X.ING` requires the `CCA`, `Rcpp`, and `RcppArmadillo` packages. 
+To install the development version of the `X.ING` package, please load the `devtools` package first. Note that `X.ING` requires the `CCA`, `RGCCA`, `Rcpp`, and `RcppArmadillo` packages. 
 
 To install this package, run the following command in R
 ```
@@ -30,11 +30,65 @@ library("X.ING")
 This vignette depends on R packages `MendelianRandomization`, `ggplot2` and `tidyverse`, you can load these packages using the following command:
 ```{r}
 suppressMessages(library("tidyverse"))
+suppressMessages(library("pROC"))
+suppressMessages(library("MASS"))
 library("ggplot2")
 library("MendelianRandomization")
+library("RGCCA")
 ```
 
 
-### Fit X.ING for correlated SNPs using simulated data
-In this section, we fit X.ING using simulated data (provided in the package) as an example to illustrate the basic usage of X.ING. `gamma_hat` and `se_g` are the estimated SNP-to-expression effect and its standard error. `LD` is the estimated linkage disequilibrium matrix among IVs. `latent status` is the true underlying effect status, where `1` indicates the presence of non-zero effect and `0` indicates the absence of effect.
+### Fit XING using simulated data
+The main function of the `X.ING` package is `XING()`.  In this section, we fit `XING` function using simulated data (provided in the package) as an example to illustrate the basic usage of `XING`. The example data is a list with two elements, where `z` is a list of z-scores and `gamma` is a list of true underlying association status. `1` in `gamma` indicates the presence of non-zero effect and `0` indicates the absence of effect. We have three sets of data available in the example data (L=3). The number of contexts are 10, 8, and 6, respectively.
+```{r}
+data("example_data")
+length(example$z)
+sapply(example$z, dim)
+```
+The proportion of true associations are ~0.04.
+```{r}
+sapply(example$gamma, mean)
+```
+The X-ING takes the z-score list as input. It automatically use CCA (when L=2) for GCCA (when L>2) for the multi-view learning. Afterwards, it applies PCA to extract shared patterns across contexts for each omics. A simplest application where two sets of z-scores are analyzed:
+```{r}
+z <- example$z
+res <- XING(z_list = z[1:2])
+```
+The output includes posterior probabilities (`alpha`) and posterior means (`mu`):
+```{r}
+names(res)
+lengths(res)
+```
+AUC can be calculated based on the posterior probability and true association status
+```{r}
+gamma <- example$gamma
+
+mapply(function(g,pp) auc(c(g),c(pp), quiet = T), gamma[1:2], res$alpha)
+```
+It switches to GCCA (implemented in RGCCA package) if L>2 (note that the computation speed may substantially slowed):
+```{r}
+z <- example$z
+res <- XING(z_list = z)
+```
+Similar to the previous example, the output also includes posterior probabilities (`alpha`) and posterior means (`mu`):
+```{r}
+names(res)
+lengths(res)
+```
+And the corresponding AUCs:
+```{r}
+mapply(function(g,pp) auc(c(g),c(pp), quiet = T), gamma, res$alpha)
+```
+Users may specify the sample overlap matrix $\widehat{\boldsymbol{R}}$ through thr `Lambda_list` parameter. The number of canonical coefficients to keep, and the number of PCs can be specified by `CC` and `PC_list`. For example,
+```{r}
+res <- XING(z_list = z, CC = 4, PC_list = c(4,3,2), Lambda_list = lapply(sapply(z,ncol),diag))
+mapply(function(g,pp) auc(c(g),c(pp), quiet = T), gamma, res$alpha)
+```
+To reduce computation time, user may specify the iteration time via `iterT`. Also, the `tolerance` parameter controls the criterion for convergence of the GCCA algorithm. A smaller `tolerance` may lead to substantially longer computation time.
+
+
+
+
+
+
 

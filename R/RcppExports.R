@@ -9,19 +9,19 @@ unique <- function(vec) {
     .Call(`_X_ING_unique`, vec)
 }
 
-Lq_func <- function(sjk_sqr, mujk, alphajk, vk_sqr, pik, Lambda, betahat) {
-    .Call(`_X_ING_Lq_func`, sjk_sqr, mujk, alphajk, vk_sqr, pik, Lambda, betahat)
+Lq_func <- function(sjk_sqr, mujk, alphajk, vk_sqr, pik, Lambda, z) {
+    .Call(`_X_ING_Lq_func`, sjk_sqr, mujk, alphajk, vk_sqr, pik, Lambda, z)
 }
 
-XING_starting <- function(betahat, Lambda, iterT = 10L, eps_thres = 1e-3, vk_init = 0.1, bound = 1e-4, pi_init = 0.1) {
-    .Call(`_X_ING_XING_starting`, betahat, Lambda, iterT, eps_thres, vk_init, bound, pi_init)
+XING_starting <- function(z, Lambda, iterT = 20L, vk_init = 0.1, pi_init = 1e-4, eps_thres = 1e-3) {
+    .Call(`_X_ING_XING_starting`, z, Lambda, iterT, vk_init, pi_init, eps_thres)
 }
 
-XING_single_data <- function(betahat, Lambda, PC = 2L, results_alg1 = NULL, eps_thresh = 1e-2, iterT = 5L, use_true_X = FALSE, bound = 1e-4) {
-    .Call(`_X_ING_XING_single_data`, betahat, Lambda, PC, results_alg1, eps_thresh, iterT, use_true_X, bound)
+XING_single_data <- function(z, Lambda, PC = 2L, result_starting = NULL, iterT = 5L) {
+    .Call(`_X_ING_XING_single_data`, z, Lambda, PC, result_starting, iterT)
 }
 
-XING <- function(betahat1, betahat2, Lambda1, Lambda2, CC, PC1, PC2, results_alg1_dat1, results_alg1_dat2, results_alg2_dat1, results_alg2_dat2, eps_thresh = 1e-2, iterT = 20L, bound = 1e-4) {
-    .Call(`_X_ING_XING`, betahat1, betahat2, Lambda1, Lambda2, CC, PC1, PC2, results_alg1_dat1, results_alg1_dat2, results_alg2_dat1, results_alg2_dat2, eps_thresh, iterT, bound)
+XING_two_data <- function(z1, z2, Lambda1, Lambda2, CC, PC1, PC2, iterT = 20L) {
+    .Call(`_X_ING_XING_two_data`, z1, z2, Lambda1, Lambda2, CC, PC1, PC2, iterT)
 }
 

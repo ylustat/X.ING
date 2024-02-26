@@ -52,8 +52,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // XING_starting
-List XING_starting(arma::mat z, arma::mat Lambda, int iterT, double vk_init, double pi_init);
-RcppExport SEXP _X_ING_XING_starting(SEXP zSEXP, SEXP LambdaSEXP, SEXP iterTSEXP, SEXP vk_initSEXP, SEXP pi_initSEXP) {
+List XING_starting(arma::mat z, arma::mat Lambda, int iterT, double vk_init, double pi_init, double eps_thres);
+RcppExport SEXP _X_ING_XING_starting(SEXP zSEXP, SEXP LambdaSEXP, SEXP iterTSEXP, SEXP vk_initSEXP, SEXP pi_initSEXP, SEXP eps_thresSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -62,7 +62,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type iterT(iterTSEXP);
     Rcpp::traits::input_parameter< double >::type vk_init(vk_initSEXP);
     Rcpp::traits::input_parameter< double >::type pi_init(pi_initSEXP);
-    rcpp_result_gen = Rcpp::wrap(XING_starting(z, Lambda, iterT, vk_init, pi_init));
+    Rcpp::traits::input_parameter< double >::type eps_thres(eps_thresSEXP);
+    rcpp_result_gen = Rcpp::wrap(XING_starting(z, Lambda, iterT, vk_init, pi_init, eps_thres));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -81,9 +82,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// XING
-List XING(const arma::mat& z1, const arma::mat& z2, const arma::mat& Lambda1, const arma::mat& Lambda2, int CC, int PC1, int PC2, const List& result_starting1, const List& result_starting2, const List& result_single1, const List& result_single2, int iterT);
-RcppExport SEXP _X_ING_XING(SEXP z1SEXP, SEXP z2SEXP, SEXP Lambda1SEXP, SEXP Lambda2SEXP, SEXP CCSEXP, SEXP PC1SEXP, SEXP PC2SEXP, SEXP result_starting1SEXP, SEXP result_starting2SEXP, SEXP result_single1SEXP, SEXP result_single2SEXP, SEXP iterTSEXP) {
+// XING_two_data
+List XING_two_data(const arma::mat& z1, const arma::mat& z2, const arma::mat& Lambda1, const arma::mat& Lambda2, int CC, int PC1, int PC2, int iterT);
+RcppExport SEXP _X_ING_XING_two_data(SEXP z1SEXP, SEXP z2SEXP, SEXP Lambda1SEXP, SEXP Lambda2SEXP, SEXP CCSEXP, SEXP PC1SEXP, SEXP PC2SEXP, SEXP iterTSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -94,12 +95,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type CC(CCSEXP);
     Rcpp::traits::input_parameter< int >::type PC1(PC1SEXP);
     Rcpp::traits::input_parameter< int >::type PC2(PC2SEXP);
-    Rcpp::traits::input_parameter< const List& >::type result_starting1(result_starting1SEXP);
-    Rcpp::traits::input_parameter< const List& >::type result_starting2(result_starting2SEXP);
-    Rcpp::traits::input_parameter< const List& >::type result_single1(result_single1SEXP);
-    Rcpp::traits::input_parameter< const List& >::type result_single2(result_single2SEXP);
     Rcpp::traits::input_parameter< int >::type iterT(iterTSEXP);
-    rcpp_result_gen = Rcpp::wrap(XING(z1, z2, Lambda1, Lambda2, CC, PC1, PC2, result_starting1, result_starting2, result_single1, result_single2, iterT));
+    rcpp_result_gen = Rcpp::wrap(XING_two_data(z1, z2, Lambda1, Lambda2, CC, PC1, PC2, iterT));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -108,9 +105,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_X_ING_scale", (DL_FUNC) &_X_ING_scale, 2},
     {"_X_ING_unique", (DL_FUNC) &_X_ING_unique, 1},
     {"_X_ING_Lq_func", (DL_FUNC) &_X_ING_Lq_func, 7},
-    {"_X_ING_XING_starting", (DL_FUNC) &_X_ING_XING_starting, 5},
+    {"_X_ING_XING_starting", (DL_FUNC) &_X_ING_XING_starting, 6},
     {"_X_ING_XING_single_data", (DL_FUNC) &_X_ING_XING_single_data, 5},
-    {"_X_ING_XING", (DL_FUNC) &_X_ING_XING, 12},
+    {"_X_ING_XING_two_data", (DL_FUNC) &_X_ING_XING_two_data, 8},
     {NULL, NULL, 0}
 };
 

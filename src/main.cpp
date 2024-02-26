@@ -1,6 +1,7 @@
 #include <RcppArmadillo.h>
 using namespace Rcpp;
 using namespace std;
+using namespace arma;
 // [[Rcpp::depends(RcppArmadillo)]]
 
 // Custom implementation of scale function
@@ -71,12 +72,12 @@ double Lq_func(arma::mat sjk_sqr, arma::mat mujk, arma::mat alphajk, arma::vec v
 }
 
 // [[Rcpp::export]]
-List XING_starting(arma::mat z, arma::mat Lambda, int iterT = 10,
-               double vk_init = 0.1, double pi_init = 0.1) {
+List XING_starting(arma::mat z, arma::mat Lambda, int iterT = 20,
+                   double vk_init = 0.1, double pi_init = 1e-4, double eps_thres = 1e-3) {
 
   int M = z.n_rows;
   int K = z.n_cols;
-  double bound = 1e-4;
+  double bound = 1e-8;
   arma::mat sjk_sqrm1(M, K, arma::fill::ones);
   arma::mat mujkm1(M, K, arma::fill::zeros);
 
@@ -98,7 +99,6 @@ List XING_starting(arma::mat z, arma::mat Lambda, int iterT = 10,
   double lowbound = 0 + bound;
 
   for(int t = 1; t < iterT; ++t) {
-
     // E step
     for (int k = 0; k < K; ++k) {
       sjk_sqrm1.col(k).fill(1 / (Lambda.diag()[k] + (1 / vk_sqrm1[k])));
@@ -117,6 +117,10 @@ List XING_starting(arma::mat z, arma::mat Lambda, int iterT = 10,
       pikm1.col(k).fill(clamp(pikm1(0, k), lowbound, upbound));
     }
     Lq_iter[t] = Lq_func(sjk_sqrm1, mujkm1, alphajkm1, vk_sqrm1, pikm1, Lambda, z);
+    
+    if(Lq_iter[t] - Lq_iter[t-1] < eps_thres){
+      break;
+    }
   }
 
   return List::create(Named("sjk_sqrm1") = sjk_sqrm1,
@@ -132,8 +136,8 @@ List XING_starting(arma::mat z, arma::mat Lambda, int iterT = 10,
 
 // [[Rcpp::export]]
 List XING_single_data(const arma::mat& z, const arma::mat& Lambda, int PC = 2,
-               List result_starting = R_NilValue,
-               int iterT = 5) {
+                      List result_starting = R_NilValue,
+                      int iterT = 5) {
 
   int M = z.n_rows;
   int K = z.n_cols;
@@ -216,13 +220,20 @@ List XING_single_data(const arma::mat& z, const arma::mat& Lambda, int PC = 2,
 }
 
 // [[Rcpp::export]]
-List XING(const arma::mat& z1, const arma::mat& z2, const arma::mat& Lambda1, const arma::mat& Lambda2,
-          int CC, int PC1, int PC2, const List& result_starting1, const List& result_starting2,
-          const List& result_single1, const List& result_single2,
-          int iterT=20) {
+List XING_two_data(const arma::mat& z1, const arma::mat& z2,
+                   const arma::mat& Lambda1, const arma::mat& Lambda2,
+                   int CC, int PC1, int PC2,
+                   int iterT = 20) {
   int M = z1.n_rows;
   int K1 = z1.n_cols;
   int K2 = z2.n_cols;
+  
+  List result_starting1 = XING_starting(z1, Lambda1);
+  List result_starting2 = XING_starting(z2, Lambda2);
+  List result_single1 = XING_single_data(z1, Lambda1, PC1, result_starting1);
+  List result_single2 = XING_single_data(z2, Lambda2, PC2, result_starting2);
+  
+  
   // Defining and initializing new variables using results from Alg 1 and 2
   arma::mat sjk_sqrm2_dat1 = result_single1["sjk_sqrm1"]; // posterior variance for beta
   arma::mat mujkm2_dat1 = result_single1["mujkm1"]; // posterior mean for beta
@@ -250,7 +261,7 @@ List XING(const arma::mat& z1, const arma::mat& z2, const arma::mat& Lambda1, co
   arma::mat X_full_dat2 = arma::zeros<arma::mat>(M, K2);
   arma::mat X_red_res2 = arma::zeros<arma::mat>(M, K2);
   arma::mat X_svd_res2 = arma::zeros<arma::mat>(M, K2);
-  double bound = 1e-4;
+  double bound = 1e-8;
   double upbound = 1 - bound;
   double lowbound = bound;
   // EM algorithm with variational approximation
@@ -362,7 +373,12 @@ List XING(const arma::mat& z1, const arma::mat& z2, const arma::mat& Lambda1, co
 
     Lq_iter_dat2(t) = Lq_func(sjk_sqrm2_dat2, mujkm2_dat2, alphajkm2_dat2, vk_sqrm2_dat2,
                  pikm2_dat2, Lambda2, z2);
+    
+    if((t > 2) && (abs((Lq_iter_dat1[t] - Lq_iter_dat1[t-1])/Lq_iter_dat1[t-1]) < 1e-4) && (abs((Lq_iter_dat2[t] - Lq_iter_dat2[t-1])/Lq_iter_dat2[t-1]) < 1e-4)) {
+      break;
+    }
   }
+  
 
   return List::create(Named("alpha1") = alphajkm2_dat1,
                       Named("alpha2") = alphajkm2_dat2,
