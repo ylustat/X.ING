@@ -24,4 +24,4 @@ This package is maintained by Yihao Lu (yihaolu@uchicago.edu).
 
 ## Licenses
 
-The code is released under [GNU General Public License (GPL)](https://opensource.org/licenses/gpl-license).
+The code is released under [GNU General Public License (GPL)](https://opensource.org/licenses/gpl-license). Cite the code: [![DOI](https://zenodo.org/badge/546129801.svg)](https://zenodo.org/doi/10.5281/zenodo.10703977)
