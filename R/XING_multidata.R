@@ -76,7 +76,7 @@ XING_multidata <- function(z_list, Lambda_list = NULL, CC = 2,
     U <- cca.with.rgcca$Y[1:num_data]
     Ahat <- mapply(function(x, u) ginv(x) %*% u, X_full, U, SIMPLIFY = F)
     X_est <- mapply(function(u, a) u[,1:CC] %*% ginv(a[,1:CC]), U, Ahat, SIMPLIFY = F)
-    X_est <- mapply(function(X,m,s) sweep(X %*% diag(s),2,m,FUN = "+"), X_est, means, sds)
+    X_est <- mapply(function(X,m,s) sweep(X %*% diag(s),2,m,FUN = "+"), X_est, means, sds, SIMPLIFY = F)
     # Use PCA to extract shared patterns across contexts
     X_res <- mapply(function(xfull,xest) xfull - xest, X_full, X_est, SIMPLIFY = F)
     means <- lapply(X_res,colMeans)
