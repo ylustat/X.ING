@@ -20,7 +20,7 @@ Please refer to the ['X.ING' vignette](https://github.com/ylustat/X.ING/blob/mas
 
 ## Development
 
-This package is maintained by Yihao Lu (yihaolu@uchicago.edu).
+This package is maintained by Yihao Lu (yihaolu.uchicago@gmail.com).
 
 ## Licenses
 
