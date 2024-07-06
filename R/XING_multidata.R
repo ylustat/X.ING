@@ -1,6 +1,6 @@
 XING_multidata <- function(z_list, Lambda_list = NULL, CC = 2,
                            PC_list = NULL, iterT = 20,
-                           tolerance = 1e-8){
+                           tolerance = 1e-8, vk_init = 0.1){
   num_data <- length(z_list)
   M <- unique(sapply(z_list,nrow))
   if(length(M) > 1) stop("All data should have same number of rows!")
@@ -10,7 +10,7 @@ XING_multidata <- function(z_list, Lambda_list = NULL, CC = 2,
   
   # Fit the starting model first
   XING_single_result <- mapply(function(z, Lambda)
-    XING_starting(z = z,Lambda = Lambda),z_list,Lambda_list,SIMPLIFY = F)
+    XING_starting(z = z,Lambda = Lambda,vk_init=vk_init),z_list,Lambda_list,SIMPLIFY = F)
   
   # Defining and initializing new variables using results from starting model
   s2 <- lapply(XING_single_result, function(x) x$sjk_sqrm1)
@@ -50,9 +50,6 @@ XING_multidata <- function(z_list, Lambda_list = NULL, CC = 2,
     ## M step
     ## Update X
     X_full <- mapply(function(alpha, x0) log(alpha) - log(1-alpha) - x0, alpha, x0k, SIMPLIFY = F)
-    sd_list <- lapply(X_full,function(x) apply(x,2,sd))
-    mean_list <- lapply(X_full,function(x) apply(x,2,mean))
-    X_full <- lapply(X_full,scale)
     for (i in 1:num_data) {
       for(k in 1:K[i]){
         v2[[i]][k] <- sum(alpha[[i]][,k]*(s2[[i]][,k] + mu[[i]][,k]^2))/sum(alpha[[i]][,k])
@@ -62,6 +59,7 @@ XING_multidata <- function(z_list, Lambda_list = NULL, CC = 2,
     # Use CCA first to extract shared patterns across data types
     means <- lapply(X_full,colMeans)
     sds <- lapply(X_full,function(x) sqrt(diag(var(x))))
+    X_full <- lapply(X_full,scale)
     data_list <- c(X_full, list(do.call("cbind", X_full)))
     C <- matrix(0,length(data_list),length(data_list))
     C[nrow(C),1:(ncol(C)-1)] <- C[1:(nrow(C)-1),ncol(C)] <- 1
@@ -76,6 +74,7 @@ XING_multidata <- function(z_list, Lambda_list = NULL, CC = 2,
     U <- cca.with.rgcca$Y[1:num_data]
     Ahat <- mapply(function(x, u) ginv(x) %*% u, X_full, U, SIMPLIFY = F)
     X_est <- mapply(function(u, a) u[,1:CC] %*% ginv(a[,1:CC]), U, Ahat, SIMPLIFY = F)
+    X_full <- mapply(function(X,m,s) sweep(X %*% diag(s),2,m,FUN = "+"), X_full, means, sds, SIMPLIFY = F)
     X_est <- mapply(function(X,m,s) sweep(X %*% diag(s),2,m,FUN = "+"), X_est, means, sds, SIMPLIFY = F)
     # Use PCA to extract shared patterns across contexts
     X_res <- mapply(function(xfull,xest) xfull - xest, X_full, X_est, SIMPLIFY = F)
@@ -99,7 +98,7 @@ XING_multidata <- function(z_list, Lambda_list = NULL, CC = 2,
                             pi[[i]], Lambda_list[[i]],
                             z_list[[i]])
     }
-    if(t > 2 & prod(sapply(Lq_iter, function(x) abs((x[t] - x[t-1])/x[t-1]) < 1e-3))==1) break
+    if(t > 2 & prod(sapply(Lq_iter, function(x) abs((x[t] - x[t-1])/x[t-1]) < 1e-4))==1) break
     
   }
   return(list(mu = mu,

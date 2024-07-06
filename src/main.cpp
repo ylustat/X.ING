@@ -72,8 +72,9 @@ double Lq_func(arma::mat sjk_sqr, arma::mat mujk, arma::mat alphajk, arma::vec v
 }
 
 // [[Rcpp::export]]
-List XING_starting(arma::mat z, arma::mat Lambda, int iterT = 20,
-                   double vk_init = 0.1, double pi_init = 1e-4, double eps_thres = 1e-3) {
+List XING_starting(arma::mat z, arma::mat Lambda, 
+                   double vk_init = 0.1, int iterT = 20, 
+                   double pi_init = 1e-4, double eps_thres = 1e-3) {
 
   int M = z.n_rows;
   int K = z.n_cols;
@@ -223,13 +224,13 @@ List XING_single_data(const arma::mat& z, const arma::mat& Lambda, int PC = 2,
 List XING_two_data(const arma::mat& z1, const arma::mat& z2,
                    const arma::mat& Lambda1, const arma::mat& Lambda2,
                    int CC, int PC1, int PC2,
-                   int iterT = 20) {
+                   int iterT = 20, double vk_init = 0.1) {
   int M = z1.n_rows;
   int K1 = z1.n_cols;
   int K2 = z2.n_cols;
   
-  List result_starting1 = XING_starting(z1, Lambda1);
-  List result_starting2 = XING_starting(z2, Lambda2);
+  List result_starting1 = XING_starting(z1, Lambda1, vk_init);
+  List result_starting2 = XING_starting(z2, Lambda2, vk_init);
   List result_single1 = XING_single_data(z1, Lambda1, PC1, result_starting1);
   List result_single2 = XING_single_data(z2, Lambda2, PC2, result_starting2);
   
@@ -316,11 +317,11 @@ List XING_two_data(const arma::mat& z1, const arma::mat& z2,
 
     arma::mat sd1 = stddev(X_full_dat1, 0, 0);
     arma::mat mean1 = mean(X_full_dat1, 0);
-    X_full_dat1 = scale(X_full_dat1);
 
     arma::mat sd2 = stddev(X_full_dat2, 0, 0);
     arma::mat mean2 = mean(X_full_dat2, 0);
 
+    X_full_dat1 = scale(X_full_dat1);
     X_full_dat2 = scale(X_full_dat2);
     for (int k = 0; k < K1; ++k) {
       vk_sqrm2_dat1(k) = sum(alphajkm2_dat1.col(k) % (sjk_sqrm2_dat1.col(k) + pow(mujkm2_dat1.col(k), 2))) / sum(alphajkm2_dat1.col(k));
@@ -338,23 +339,25 @@ List XING_two_data(const arma::mat& z1, const arma::mat& z2,
     arma::mat X_est1 = XX.cols(0, CC - 1) * pinv(Ahat.cols(0, CC - 1));
     arma::mat X_est2 = YY.cols(0, CC - 1) * pinv(Bhat.cols(0, CC - 1));
 
-    arma::mat X_res1 = X_full_dat1 - X_est1;
-    arma::mat X_res2 = X_full_dat2 - X_est2;
-
+    X_full_dat1 = X_full_dat1 * diagmat(sd1) + repmat(mean1,  X_full_dat1.n_rows, 1);
+    X_full_dat2 = X_full_dat2 * diagmat(sd2) + repmat(mean2,  X_full_dat2.n_rows, 1);
+    
     X_est1 = X_est1 * diagmat(sd1) + repmat(mean1,  X_est1.n_rows, 1);
     X_est2 = X_est2 * diagmat(sd2) + repmat(mean2,  X_est2.n_rows, 1);
 
-    X_res1 = X_full_dat1 - X_est1;
-    X_res2 = X_full_dat2 - X_est2;
+    arma::mat X_res1 = X_full_dat1 - X_est1;
+    arma::mat X_res2 = X_full_dat2 - X_est2;
+    
     arma::mat U1, V1, U2, V2;
     arma::vec S1, S2;
-    svd_econ(U1, S1, V1, scale(X_res1));  // equivalent to svd function in R
+    
+    svd_econ(U1, S1, V1, scale(X_res1));
     X_red_res1 = U1.cols(0, PC1-1) * diagmat(S1.head(PC1)) * trans(V1.cols(0, PC1-1));  // low-rank approximation
     sd1 = stddev(X_res1, 0, 0);
     mean1 = mean(X_res1, 0);
     X_red_res1 = X_red_res1 * diagmat(sd1) + repmat(mean1,  X_red_res1.n_rows, 1);
 
-    svd_econ(U2, S2, V2, scale(X_res2));  // equivalent to svd function in R
+    svd_econ(U2, S2, V2, scale(X_res2));
     X_red_res2 = U2.cols(0, PC2-1) * diagmat(S2.head(PC2)) * trans(V2.cols(0, PC2-1));  // low-rank approximation
     sd2 = stddev(X_res2, 0, 0);
     mean2 = mean(X_res2, 0);
@@ -367,7 +370,6 @@ List XING_two_data(const arma::mat& z1, const arma::mat& z2,
     pikm2_dat2 = 1 / (1 + exp(-X_est2 - X_red_res2 - x0k_dat2));
     pikm2_dat2 = clamp(pikm2_dat2, lowbound, upbound);
 
-    // Lq compute
     Lq_iter_dat1(t) = Lq_func(sjk_sqrm2_dat1, mujkm2_dat1, alphajkm2_dat1, vk_sqrm2_dat1,
                  pikm2_dat1, Lambda1, z1);
 

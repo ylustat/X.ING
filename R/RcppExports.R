@@ -13,15 +13,15 @@ Lq_func <- function(sjk_sqr, mujk, alphajk, vk_sqr, pik, Lambda, z) {
     .Call(`_X_ING_Lq_func`, sjk_sqr, mujk, alphajk, vk_sqr, pik, Lambda, z)
 }
 
-XING_starting <- function(z, Lambda, iterT = 20L, vk_init = 0.1, pi_init = 1e-4, eps_thres = 1e-3) {
-    .Call(`_X_ING_XING_starting`, z, Lambda, iterT, vk_init, pi_init, eps_thres)
+XING_starting <- function(z, Lambda, vk_init = 0.1, iterT = 20L, pi_init = 1e-4, eps_thres = 1e-3) {
+    .Call(`_X_ING_XING_starting`, z, Lambda, vk_init, iterT, pi_init, eps_thres)
 }
 
 XING_single_data <- function(z, Lambda, PC = 2L, result_starting = NULL, iterT = 5L) {
     .Call(`_X_ING_XING_single_data`, z, Lambda, PC, result_starting, iterT)
 }
 
-XING_two_data <- function(z1, z2, Lambda1, Lambda2, CC, PC1, PC2, iterT = 20L) {
-    .Call(`_X_ING_XING_two_data`, z1, z2, Lambda1, Lambda2, CC, PC1, PC2, iterT)
+XING_two_data <- function(z1, z2, Lambda1, Lambda2, CC, PC1, PC2, iterT = 20L, vk_init = 0.1) {
+    .Call(`_X_ING_XING_two_data`, z1, z2, Lambda1, Lambda2, CC, PC1, PC2, iterT, vk_init)
 }
 
